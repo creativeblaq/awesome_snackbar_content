@@ -21,12 +21,32 @@ class AwesomeSnackbarContent extends StatelessWidget {
   /// contentType will reflect the overall theme of SnackBar: failure, success, help, warning
   final ContentType contentType;
 
+  /// `optional` the maximum number of lines for the messsage
+  final int? messageMaxLines;
+
+  ///  `optional` textstyle to be used for the  title
+  final TextStyle? titleTextStyle;
+
+  /// `optional` textstyle to be used for the  message
+  final TextStyle? messageTextStyle;
+
+  /// `optional` the spacing between the  title and messase text
+  final double? contentSpacing;
+
+  /// `optional` show the close icon
+  final bool showCloseIcon;
+
   const AwesomeSnackbarContent({
     Key? key,
     this.color,
     required this.title,
     required this.message,
     required this.contentType,
+    this.messageMaxLines = 2,
+    this.contentSpacing = 4,
+    this.titleTextStyle,
+    this.messageTextStyle,
+    this.showCloseIcon = true,
   }) : super(key: key);
 
   @override
@@ -60,59 +80,101 @@ class AwesomeSnackbarContent extends StatelessWidget {
                 margin: EdgeInsets.symmetric(
                   horizontal: isTablet ? size.width * 0.1 : 0,
                 ),
-                padding: EdgeInsets.symmetric(
+                /* padding: EdgeInsets.symmetric(
                   horizontal: isTablet ? size.width * 0.1 : size.width * 0.05,
                   vertical: isTablet || isDesktop
                       ? size.height * 0.02
                       : size.height * 0.025,
-                ),
-                height: size.height * 0.12,
+                ), */
+                //height: size.height * 0.12,
                 decoration: BoxDecoration(
                   color: color ?? contentType.color,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: Stack(
                   children: [
-                    const Spacer(),
-                    Expanded(
-                      flex: isMobile ? 8 : 25,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    /// other SVGs in body
+                    Positioned(
+                      bottom: 0,
+                      left: isTablet ? size.width * 0.1 : 0,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                        ),
+                        child: SvgPicture.asset(
+                          AssetsPath.bubbles,
+                          height: size.height * 0.06,
+                          width: size.width * 0.04,
+                          color: hslDark.toColor(),
+                          package: 'awesome_snackbar_content',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal:
+                            isTablet ? size.width * 0.1 : size.width * 0.05,
+                        vertical: isTablet || isDesktop
+                            ? size.height * 0.02
+                            : size.height * 0.025,
+                      ),
+                      child: Row(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              /// `title` parameter
-                              Text(
-                                title,
-                                style: TextStyle(
-                                  fontSize: isTablet || isDesktop
-                                      ? size.height * 0.03
-                                      : size.height * 0.025,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () => ScaffoldMessenger.of(context)
-                                    .hideCurrentSnackBar(),
-                                child: SvgPicture.asset(
-                                  AssetsPath.failure,
-                                  height: size.height * 0.022,
-                                  package: 'awesome_snackbar_content',
-                                ),
-                              )
-                            ],
-                          ),
                           const Spacer(),
+                          Expanded(
+                            flex: isMobile ? 8 : 25,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    /// `title` parameter
+                                    Text(
+                                      title,
+                                      style: titleTextStyle ??
+                                          TextStyle(
+                                            fontSize: isTablet || isDesktop
+                                                ? size.height * 0.03
+                                                : size.height * 0.025,
+                                            color: Colors.white,
+                                          ),
+                                    ),
+                                    Visibility(
+                                      visible: showCloseIcon,
+                                      child: InkWell(
+                                        onTap: () =>
+                                            ScaffoldMessenger.of(context)
+                                                .hideCurrentSnackBar(),
+                                        child: SvgPicture.asset(
+                                          AssetsPath.failure,
+                                          height: size.height * 0.022,
+                                          package: 'awesome_snackbar_content',
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                //const Spacer(),
+                                SizedBox(
+                                  height: contentSpacing,
+                                ),
 
-                          /// `message` body text parameter
-                          Text(
-                            message,
-                            style: TextStyle(
-                              fontSize: size.height * 0.016,
-                              color: Colors.white,
+                                /// `message` body text parameter
+                                Text(
+                                  message,
+                                  style: messageTextStyle ??
+                                      TextStyle(
+                                        fontSize: size.height * 0.016,
+                                        color: Colors.white,
+                                      ),
+                                  maxLines: messageMaxLines,
+                                ),
+                              ],
                             ),
-                            maxLines: 2,
                           ),
                         ],
                       ),
@@ -121,23 +183,6 @@ class AwesomeSnackbarContent extends StatelessWidget {
                 ),
               ),
 
-              /// other SVGs in body
-              Positioned(
-                bottom: 0,
-                left: isTablet ? size.width * 0.1 : 0,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                  ),
-                  child: SvgPicture.asset(
-                    AssetsPath.bubbles,
-                    height: size.height * 0.06,
-                    width: size.width * 0.05,
-                    color: hslDark.toColor(),
-                    package: 'awesome_snackbar_content',
-                  ),
-                ),
-              ),
               Positioned(
                 top: -size.height * 0.02,
                 left: isTablet ? size.width * 0.125 : size.width * 0.02,
